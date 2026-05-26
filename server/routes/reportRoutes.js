@@ -6,39 +6,46 @@ import {
   createReport,
   getReports,
   getReportStats,
-  updateReportStatus,
 } from "../controllers/reportController.js";
 
+import upload from "../config/cloudinary.js";
+
 const router = express.Router();
+
 
 // CREATE REPORT
 router.post(
   "/",
-
   authMiddleware,
 
   upload.fields([
     {
       name: "screenshots",
-      maxCount: 5,
+      maxCount: 10,
     },
-
     {
       name: "receipt",
-      maxCount: 1,
+      maxCount: 10,
     },
   ]),
 
   createReport
 );
 
+
 // GET USER REPORTS
-router.get("/", authMiddleware, getReports);
+router.get(
+  "/",
+  authMiddleware,
+  getReports
+);
+
 
 // GET REPORT STATS
-router.get("/stats", authMiddleware, getReportStats);
-
-// UPDATE REPORT STATUS
-router.put("/:id/status", authMiddleware, updateReportStatus);
+router.get(
+  "/stats",
+  authMiddleware,
+  getReportStats
+);
 
 export default router;
