@@ -1,6 +1,11 @@
-import { v2 as cloudinary }
-from "cloudinary";
+import multer from "multer";
 
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+
+import { v2 as cloudinary } from "cloudinary";
+
+
+// CLOUDINARY CONFIG
 cloudinary.config({
 
   cloud_name:
@@ -14,4 +19,33 @@ cloudinary.config({
 
 });
 
-export default cloudinary;
+
+// STORAGE
+const storage =
+  new CloudinaryStorage({
+
+    cloudinary,
+
+    params: async (
+      req,
+      file
+    ) => ({
+
+      folder:
+        "verilyfy",
+
+      resource_type:
+        "auto",
+
+    }),
+
+  });
+
+
+// MULTER UPLOAD
+const upload =
+  multer({
+    storage,
+  });
+
+export default upload;
