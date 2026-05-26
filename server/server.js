@@ -16,7 +16,10 @@ const app = express();
 connectDB();
 
 // MIDDLEWARES
-app.use(cors());
+app.use(cors({
+  origin: "https://verifly-neon.vercel.app",
+  credentials: true,
+}));
 
 app.use(express.json());
 
