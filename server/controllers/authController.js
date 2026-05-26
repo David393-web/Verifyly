@@ -7,7 +7,9 @@ import Notification from "../models/Notification.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
 
+// ==============================
 // REGISTER
+// ==============================
 export const register = async (
   req,
   res
@@ -21,7 +23,25 @@ export const register = async (
       password,
     } = req.body;
 
-    // CHECK USER
+    // VALIDATION
+    if (
+      !full_name ||
+      !email ||
+      !password
+    ) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          "All fields are required",
+
+      });
+
+    }
+
+    // CHECK EXISTING USER
     const existingUser =
       await User.findOne({
         email,
@@ -30,8 +50,12 @@ export const register = async (
     if (existingUser) {
 
       return res.status(400).json({
+
+        success: false,
+
         message:
           "User already exists",
+
       });
 
     }
@@ -59,7 +83,8 @@ export const register = async (
     // CREATE NOTIFICATION
     await Notification.create({
 
-      user: user._id,
+      user:
+        user._id,
 
       title:
         "Welcome to Verilyfy",
@@ -76,94 +101,113 @@ export const register = async (
     const token = jwt.sign(
 
       {
-        id: user._id,
+        id:
+          user._id,
       },
 
       process.env.JWT_SECRET,
 
       {
-        expiresIn: "7d",
+        expiresIn:
+          "7d",
       }
 
     );
 
     // SEND EMAIL
-    await sendEmail({
+    try {
 
-      to: email,
+      await sendEmail({
 
-      subject:
-        "Welcome to Verilyfy 🛡️",
+        to:
+          email,
 
-      html: `
-        <div style="
-          font-family:sans-serif;
-          padding:20px;
-          background:#f9fafb;
-        ">
+        subject:
+          "Welcome to Verilyfy 🛡️",
 
-          <h1 style="
-            color:#4f46e5;
-          ">
-            Welcome to Verilyfy 🛡️
-          </h1>
-
-          <p>
-            Hello ${full_name},
-          </p>
-
-          <p>
-            Your account has been created successfully.
-          </p>
-
-          <p>
-            You can now securely report scam activities and track investigations in real-time.
-          </p>
-
+        html: `
           <div style="
-            margin-top:20px;
-            padding:15px;
-            background:#eef2ff;
-            border-radius:10px;
+            font-family:sans-serif;
+            padding:20px;
+            background:#f9fafb;
           ">
+
+            <h1 style="
+              color:#4f46e5;
+            ">
+              Welcome to Verilyfy 🛡️
+            </h1>
+
+            <p>
+              Hello ${full_name},
+            </p>
+
+            <p>
+              Your account has been created successfully.
+            </p>
+
+            <p>
+              You can now securely report scam activities and track investigations in real-time.
+            </p>
+
+            <div style="
+              margin-top:20px;
+              padding:15px;
+              background:#eef2ff;
+              border-radius:10px;
+            ">
+
+              <strong>
+                Security Tips:
+              </strong>
+
+              <ul>
+                <li>
+                  Never share your OTP
+                </li>
+
+                <li>
+                  Avoid suspicious links
+                </li>
+
+                <li>
+                  Report scam activity immediately
+                </li>
+              </ul>
+
+            </div>
+
+            <p style="
+              margin-top:20px;
+            ">
+              Stay protected,
+            </p>
 
             <strong>
-              Security Tips:
+              Verilyfy Security Team
             </strong>
 
-            <ul>
-              <li>
-                Never share your OTP
-              </li>
-
-              <li>
-                Avoid suspicious links
-              </li>
-
-              <li>
-                Report scam activity immediately
-              </li>
-            </ul>
-
           </div>
+        `,
 
-          <p style="
-            margin-top:20px;
-          ">
-            Stay protected,
-          </p>
+      });
 
-          <strong>
-            Verilyfy Security Team
-          </strong>
+    } catch (emailError) {
 
-        </div>
-      `,
+      console.log(
+        "EMAIL ERROR:",
+        emailError.message
+      );
 
-    });
+    }
 
-    // RESPONSE
-    res.status(201).json({
+    // SUCCESS RESPONSE
+    return res.status(201).json({
+
+      success: true,
+
+      message:
+        "Registration successful",
 
       token,
 
@@ -187,12 +231,17 @@ export const register = async (
 
   } catch (error) {
 
-    console.log(error);
+    console.log(
+      "REGISTER ERROR:",
+      error.message
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+
+      success: false,
 
       message:
-        error.message,
+        "Registration failed",
 
     });
 
@@ -201,7 +250,9 @@ export const register = async (
 };
 
 
+// ==============================
 // LOGIN
+// ==============================
 export const login = async (
   req,
   res
@@ -214,6 +265,23 @@ export const login = async (
       password,
     } = req.body;
 
+    // VALIDATION
+    if (
+      !email ||
+      !password
+    ) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          "Email and password are required",
+
+      });
+
+    }
+
     // FIND USER
     const user =
       await User.findOne({
@@ -223,6 +291,8 @@ export const login = async (
     if (!user) {
 
       return res.status(400).json({
+
+        success: false,
 
         message:
           "Invalid credentials",
@@ -242,6 +312,8 @@ export const login = async (
 
       return res.status(400).json({
 
+        success: false,
+
         message:
           "Invalid credentials",
 
@@ -249,23 +321,47 @@ export const login = async (
 
     }
 
+    // CREATE LOGIN NOTIFICATION
+    await Notification.create({
+
+      user:
+        user._id,
+
+      title:
+        "Login Successful",
+
+      message:
+        "You logged into your account.",
+
+      type:
+        "login",
+
+    });
+
     // GENERATE TOKEN
     const token = jwt.sign(
 
       {
-        id: user._id,
+        id:
+          user._id,
       },
 
       process.env.JWT_SECRET,
 
       {
-        expiresIn: "7d",
+        expiresIn:
+          "7d",
       }
 
     );
 
-    // RESPONSE
-    res.status(200).json({
+    // SUCCESS RESPONSE
+    return res.status(200).json({
+
+      success: true,
+
+      message:
+        "Login successful",
 
       token,
 
@@ -289,12 +385,17 @@ export const login = async (
 
   } catch (error) {
 
-    console.log(error);
+    console.log(
+      "LOGIN ERROR:",
+      error.message
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+
+      success: false,
 
       message:
-        error.message,
+        "Login failed",
 
     });
 
