@@ -7,9 +7,9 @@ import Notification from "../models/Notification.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
 
-// ==============================
+// =====================================
 // REGISTER
-// ==============================
+// =====================================
 export const register = async (
   req,
   res
@@ -17,11 +17,20 @@ export const register = async (
 
   try {
 
-    const {
+    let {
       full_name,
       email,
       password,
     } = req.body;
+
+    // CLEAN INPUTS
+    full_name = full_name?.trim();
+
+    email = email
+      ?.trim()
+      .toLowerCase();
+
+    password = password?.trim();
 
     // VALIDATION
     if (
@@ -41,7 +50,7 @@ export const register = async (
 
     }
 
-    // CHECK EXISTING USER
+    // CHECK USER
     const existingUser =
       await User.findOne({
         email,
@@ -147,45 +156,8 @@ export const register = async (
             </p>
 
             <p>
-              You can now securely report scam activities and track investigations in real-time.
+              Stay protected with Verilyfy.
             </p>
-
-            <div style="
-              margin-top:20px;
-              padding:15px;
-              background:#eef2ff;
-              border-radius:10px;
-            ">
-
-              <strong>
-                Security Tips:
-              </strong>
-
-              <ul>
-                <li>
-                  Never share your OTP
-                </li>
-
-                <li>
-                  Avoid suspicious links
-                </li>
-
-                <li>
-                  Report scam activity immediately
-                </li>
-              </ul>
-
-            </div>
-
-            <p style="
-              margin-top:20px;
-            ">
-              Stay protected,
-            </p>
-
-            <strong>
-              Verilyfy Security Team
-            </strong>
 
           </div>
         `,
@@ -201,7 +173,7 @@ export const register = async (
 
     }
 
-    // SUCCESS RESPONSE
+    // RESPONSE
     return res.status(201).json({
 
       success: true,
@@ -233,7 +205,7 @@ export const register = async (
 
     console.log(
       "REGISTER ERROR:",
-      error.message
+      error
     );
 
     return res.status(500).json({
@@ -250,9 +222,9 @@ export const register = async (
 };
 
 
-// ==============================
+// =====================================
 // LOGIN
-// ==============================
+// =====================================
 export const login = async (
   req,
   res
@@ -260,10 +232,17 @@ export const login = async (
 
   try {
 
-    const {
+    let {
       email,
       password,
     } = req.body;
+
+    // CLEAN INPUTS
+    email = email
+      ?.trim()
+      .toLowerCase();
+
+    password = password?.trim();
 
     // VALIDATION
     if (
@@ -308,6 +287,11 @@ export const login = async (
         user.password
       );
 
+    console.log(
+      "PASSWORD MATCH:",
+      isMatch
+    );
+
     if (!isMatch) {
 
       return res.status(400).json({
@@ -321,7 +305,7 @@ export const login = async (
 
     }
 
-    // CREATE LOGIN NOTIFICATION
+    // CREATE NOTIFICATION
     await Notification.create({
 
       user:
@@ -355,7 +339,7 @@ export const login = async (
 
     );
 
-    // SUCCESS RESPONSE
+    // RESPONSE
     return res.status(200).json({
 
       success: true,
@@ -387,7 +371,7 @@ export const login = async (
 
     console.log(
       "LOGIN ERROR:",
-      error.message
+      error
     );
 
     return res.status(500).json({
@@ -401,4 +385,4 @@ export const login = async (
 
   }
 
-}; 
+};

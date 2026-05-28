@@ -1,70 +1,29 @@
 import nodemailer from "nodemailer";
 
-console.log(
-  "EMAIL USER:",
-  process.env.EMAIL_USER
-);
+export const sendEmail = async ({
+  to,
+  subject,
+  html,
+}) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
 
-console.log(
-  "EMAIL PASS:",
-  process.env.EMAIL_PASS
-);
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-const transporter =
-  nodemailer.createTransport({
+    await transporter.sendMail({
+      from: `"Verilyfy" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
 
-    service: "gmail",
-
-    auth: {
-
-      user:
-        process.env.EMAIL_USER,
-
-      pass:
-        process.env.EMAIL_PASS,
-
-    },
-
-  });
-
-
-export const sendEmail =
-  async ({
-    to,
-    subject,
-    html,
-  }) => {
-
-    try {
-
-      const info =
-        await transporter.sendMail({
-
-          from:
-            `"Verilyfy" <${process.env.EMAIL_USER}>`,
-
-          to,
-
-          subject,
-
-          html,
-
-        });
-
-      console.log(
-        "Email Sent:",
-        info.response
-      );
-
-      return info;
-
-    } catch (error) {
-
-      console.log(
-        "Email Error:",
-        error
-      );
-
-    }
-
-  };
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.log("Email Error:", error);
+  }
+};
