@@ -1,16 +1,10 @@
 import Report from "../models/Report.js";
-import User from "../models/Users.js";
 import Notification from "../models/Notification.js";
 
-import { sendEmail } from "../utils/sendEmail.js";
-
-
+// =====================================
 // CREATE REPORT
-export const createReport = async (
-  req,
-  res
-) => {
-
+// =====================================
+export const createReport = async (req, res) => {
   try {
 
     const {
@@ -20,18 +14,14 @@ export const createReport = async (
       contact_email,
     } = req.body;
 
-
     // FILES
     const screenshots =
-      req.files?.screenshots
-        ?.map(
-          (file) => file.path
-        ) || [];
+      req.files?.screenshots?.map(
+        (file) => file.path
+      ) || [];
 
     const receipt =
-      req.files?.receipt?.[0]
-        ?.path || "";
-
+      req.files?.receipt?.[0]?.path || "";
 
     // CREATE REPORT
     const report =
@@ -53,14 +43,6 @@ export const createReport = async (
 
       });
 
-
-    // GET USER
-    const userData =
-      await User.findById(
-        req.user.id
-      );
-
-
     // CREATE NOTIFICATION
     await Notification.create({
 
@@ -79,343 +61,246 @@ export const createReport = async (
 
     });
 
+    // RESPONSE
+    return res.status(201).json({
 
-    // SEND EMAIL
-    await sendEmail({
+      success: true,
 
-      to: userData.email,
+      message:
+        "Report submitted successfully",
 
-      subject:
-        "Scam Report Submitted 🚨",
-
-      html: `
-        <div style="
-          font-family:sans-serif;
-          padding:20px;
-          background:#f9fafb;
-        ">
-
-          <h1 style="
-            color:#dc2626;
-          ">
-            Scam Report Submitted 🚨
-          </h1>
-
-          <p>
-            Hello ${userData.full_name},
-          </p>
-
-          <p>
-            Your report has been submitted successfully and is currently under review.
-          </p>
-
-          <div style="
-            margin-top:20px;
-            padding:15px;
-            background:#fef2f2;
-            border-radius:10px;
-          ">
-
-            <p>
-              <strong>
-                Scam Type:
-              </strong>
-
-              ${scam_type}
-            </p>
-
-            <p>
-              <strong>
-                Amount Lost:
-              </strong>
-
-              ₦${Number(amount_lost).toLocaleString()}
-            </p>
-
-            <p>
-              <strong>
-                Status:
-              </strong>
-
-              Pending Review
-            </p>
-
-            <p>
-              <strong>
-                Submitted:
-              </strong>
-
-              ${new Date().toLocaleString()}
-            </p>
-
-          </div>
-
-          <p style="
-            margin-top:20px;
-          ">
-            Our investigation team will carefully review your case and update you on any progress.
-          </p>
-
-          <p>
-            Thank you for helping fight online fraud.
-          </p>
-
-          <strong>
-            Verilyfy Investigation Team
-          </strong>
-
-        </div>
-      `,
+      report,
 
     });
-
-
-    // RESPONSE
-    res.status(201).json(report);
 
   } catch (error) {
 
-    console.log(error);
+    console.log(
+      "CREATE REPORT ERROR:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+
+      success: false,
+
       message:
-        error.message,
+        "Submission failed",
+
     });
 
   }
-
 };
 
-
+// =====================================
 // UPDATE REPORT STATUS
-export const updateReportStatus =
-  async (req, res) => {
+// =====================================
+export const updateReportStatus = async (req, res) => {
+  try {
 
-    try {
+    const { status } = req.body;
 
-      const {
-        status,
-      } = req.body;
+    const report =
+      await Report.findById(
+        req.params.id
+      );
 
-      const report =
-        await Report.findById(
-          req.params.id
-        );
+    if (!report) {
 
-      if (!report) {
+      return res.status(404).json({
 
-        return res.status(404).json({
-          message:
-            "Report not found",
-        });
-
-      }
-
-      // UPDATE STATUS
-      report.status = status;
-
-      await report.save();
-
-      // GET USER
-      const userData =
-        await User.findById(
-          report.user
-        );
-
-      // CREATE NOTIFICATION
-      await Notification.create({
-
-        user: report.user,
-
-        title:
-          "Report Status Updated",
+        success: false,
 
         message:
-          `Your report status changed to ${status}.`,
+          "Report not found",
 
-        type:
-          "status",
-
-        read: false,
-
-      });
-
-      // SEND EMAIL
-      await sendEmail({
-
-        to: userData.email,
-
-        subject:
-          `Report Status Updated - ${status}`,
-
-        html: `
-          <div style="
-            font-family:sans-serif;
-            padding:20px;
-            background:#f9fafb;
-          ">
-
-            <h1 style="
-              color:#4f46e5;
-            ">
-              Report Status Updated
-            </h1>
-
-            <p>
-              Hello ${userData.full_name},
-            </p>
-
-            <p>
-              Your scam report status has been updated.
-            </p>
-
-            <div style="
-              margin-top:20px;
-              padding:15px;
-              background:#eef2ff;
-              border-radius:10px;
-            ">
-
-              <p>
-                <strong>
-                  New Status:
-                </strong>
-
-                ${status}
-              </p>
-
-            </div>
-
-            <p style="
-              margin-top:20px;
-            ">
-              Thank you for using Verilyfy.
-            </p>
-
-            <strong>
-              Verilyfy Investigation Team
-            </strong>
-
-          </div>
-        `,
-
-      });
-
-      res.status(200).json({
-
-        message:
-          "Report status updated successfully",
-
-        report,
-
-      });
-
-    } catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-        message:
-          error.message,
       });
 
     }
 
-  };
+    // UPDATE STATUS
+    report.status = status;
 
+    await report.save();
 
+    // CREATE NOTIFICATION
+    await Notification.create({
+
+      user:
+        report.user,
+
+      title:
+        "Report Status Updated",
+
+      message:
+        `Your report status changed to ${status}.`,
+
+      type:
+        "status",
+
+      read: false,
+
+    });
+
+    return res.status(200).json({
+
+      success: true,
+
+      message:
+        "Report status updated successfully",
+
+      report,
+
+    });
+
+  } catch (error) {
+
+    console.log(
+      "UPDATE STATUS ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to update report",
+
+    });
+
+  }
+};
+
+// =====================================
 // GET USER REPORTS
-export const getReports = async (
-  req,
-  res
-) => {
-
+// =====================================
+export const getReports = async (req, res) => {
   try {
 
     const reports =
       await Report.find({
-        user: req.user.id,
+
+        user:
+          req.user.id,
+
       }).sort({
+
         createdAt: -1,
+
       });
 
-    res.status(200).json(
+    return res.status(200).json(
       reports
     );
 
   } catch (error) {
 
-    console.log(error);
+    console.log(
+      "GET REPORTS ERROR:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+
+      success: false,
+
       message:
-        error.message,
+        "Failed to fetch reports",
+
     });
 
   }
-
 };
 
-
+// =====================================
 // GET REPORT STATS
-export const getReportStats =
-  async (req, res) => {
+// =====================================
+export const getReportStats = async (req, res) => {
+  try {
 
-    try {
+    const totalReports =
+      await Report.countDocuments({
 
-      const totalReports =
-        await Report.countDocuments({
-          user: req.user.id,
-        });
-
-      const pendingReports =
-        await Report.countDocuments({
-          user: req.user.id,
-          status: "Pending",
-        });
-
-      const investigatingReports =
-        await Report.countDocuments({
-          user: req.user.id,
-          status: "Investigating",
-        });
-
-      const resolvedReports =
-        await Report.countDocuments({
-          user: req.user.id,
-          status: "Resolved",
-        });
-
-      const latestReport =
-        await Report.findOne({
-          user: req.user.id,
-        }).sort({
-          createdAt: -1,
-        });
-
-      res.status(200).json({
-
-        totalReports,
-
-        pendingReports,
-
-        investigatingReports,
-
-        resolvedReports,
-
-        latestReport,
+        user:
+          req.user.id,
 
       });
 
-    } catch (error) {
+    const pendingReports =
+      await Report.countDocuments({
 
-      console.log(error);
+        user:
+          req.user.id,
 
-      res.status(500).json({
-        message:
-          error.message,
+        status:
+          "Pending",
+
       });
 
-    }
+    const investigatingReports =
+      await Report.countDocuments({
 
-  };
+        user:
+          req.user.id,
+
+        status:
+          "Investigating",
+
+      });
+
+    const resolvedReports =
+      await Report.countDocuments({
+
+        user:
+          req.user.id,
+
+        status:
+          "Resolved",
+
+      });
+
+    const latestReport =
+      await Report.findOne({
+
+        user:
+          req.user.id,
+
+      }).sort({
+
+        createdAt: -1,
+
+      });
+
+    return res.status(200).json({
+
+      totalReports,
+
+      pendingReports,
+
+      investigatingReports,
+
+      resolvedReports,
+
+      latestReport,
+
+    });
+
+  } catch (error) {
+
+    console.log(
+      "REPORT STATS ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to fetch stats",
+
+    });
+
+  }
+};

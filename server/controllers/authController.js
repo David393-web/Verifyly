@@ -4,385 +4,341 @@ import jwt from "jsonwebtoken";
 import User from "../models/Users.js";
 import Notification from "../models/Notification.js";
 
-import { sendEmail } from "../utils/sendEmail.js";
-
-
 // =====================================
 // REGISTER
 // =====================================
 export const register = async (
-  req,
-  res
+req,
+res
 ) => {
 
-  try {
+try {
 
-    let {
-      full_name,
-      email,
-      password,
-    } = req.body;
+```
+let {
+  full_name,
+  email,
+  password,
+} = req.body;
 
-    // CLEAN INPUTS
-    full_name = full_name?.trim();
+// CLEAN INPUTS
+full_name =
+  full_name?.trim();
 
-    email = email
-      ?.trim()
-      .toLowerCase();
+email =
+  email
+    ?.trim()
+    .toLowerCase();
 
-    password = password?.trim();
+password =
+  password?.trim();
 
-    // VALIDATION
-    if (
-      !full_name ||
-      !email ||
-      !password
-    ) {
+// VALIDATION
+if (
+  !full_name ||
+  !email ||
+  !password
+) {
 
-      return res.status(400).json({
+  return res.status(400).json({
 
-        success: false,
+    success: false,
 
-        message:
-          "All fields are required",
+    message:
+      "All fields are required",
 
-      });
+  });
 
-    }
+}
 
-    // CHECK USER
-    const existingUser =
-      await User.findOne({
-        email,
-      });
+// CHECK USER
+const existingUser =
+  await User.findOne({
+    email,
+  });
 
-    if (existingUser) {
+if (existingUser) {
 
-      return res.status(400).json({
+  return res.status(400).json({
 
-        success: false,
+    success: false,
 
-        message:
-          "User already exists",
+    message:
+      "User already exists",
 
-      });
+  });
 
-    }
+}
 
-    // HASH PASSWORD
-    const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
+// HASH PASSWORD
+const hashedPassword =
+  await bcrypt.hash(
+    password,
+    10
+  );
 
-    // CREATE USER
-    const user =
-      await User.create({
+// CREATE USER
+const user =
+  await User.create({
 
-        full_name,
+    full_name,
 
-        email,
+    email,
 
-        password:
-          hashedPassword,
+    password:
+      hashedPassword,
 
-      });
+  });
 
-    // CREATE NOTIFICATION
-    await Notification.create({
+// CREATE NOTIFICATION
+await Notification.create({
 
-      user:
+  user:
+    user._id,
+
+  title:
+    "Welcome to Verilyfy",
+
+  message:
+    "Your account was created successfully.",
+
+  type:
+    "account",
+
+});
+
+// GENERATE TOKEN
+const token =
+  jwt.sign(
+
+    {
+      id:
         user._id,
+    },
 
-      title:
-        "Welcome to Verilyfy",
+    process.env.JWT_SECRET,
 
-      message:
-        "Your account was created successfully.",
-
-      type:
-        "account",
-
-    });
-
-    // GENERATE TOKEN
-    const token = jwt.sign(
-
-      {
-        id:
-          user._id,
-      },
-
-      process.env.JWT_SECRET,
-
-      {
-        expiresIn:
-          "7d",
-      }
-
-    );
-
-    // SEND EMAIL
-    try {
-
-      await sendEmail({
-
-        to:
-          email,
-
-        subject:
-          "Welcome to Verilyfy 🛡️",
-
-        html: `
-          <div style="
-            font-family:sans-serif;
-            padding:20px;
-            background:#f9fafb;
-          ">
-
-            <h1 style="
-              color:#4f46e5;
-            ">
-              Welcome to Verilyfy 🛡️
-            </h1>
-
-            <p>
-              Hello ${full_name},
-            </p>
-
-            <p>
-              Your account has been created successfully.
-            </p>
-
-            <p>
-              Stay protected with Verilyfy.
-            </p>
-
-          </div>
-        `,
-
-      });
-
-    } catch (emailError) {
-
-      console.log(
-        "EMAIL ERROR:",
-        emailError.message
-      );
-
+    {
+      expiresIn:
+        "7d",
     }
 
-    // RESPONSE
-    return res.status(201).json({
+  );
 
-      success: true,
+// RESPONSE
+return res.status(201).json({
 
-      message:
-        "Registration successful",
+  success: true,
 
-      token,
+  message:
+    "Registration successful",
 
-      user: {
+  token,
 
-        id:
-          user._id,
+  user: {
 
-        full_name:
-          user.full_name,
+    id:
+      user._id,
 
-        email:
-          user.email,
+    full_name:
+      user.full_name,
 
-        role:
-          user.role,
+    email:
+      user.email,
 
-      },
+    role:
+      user.role,
 
-    });
+  },
 
-  } catch (error) {
+});
+```
 
-    console.log(
-      "REGISTER ERROR:",
-      error
-    );
+} catch (error) {
 
-    return res.status(500).json({
+```
+console.log(
+  "REGISTER ERROR:",
+  error
+);
 
-      success: false,
+return res.status(500).json({
 
-      message:
-        "Registration failed",
+  success: false,
 
-    });
+  message:
+    "Registration failed",
 
-  }
+});
+```
+
+}
 
 };
-
 
 // =====================================
 // LOGIN
 // =====================================
 export const login = async (
-  req,
-  res
+req,
+res
 ) => {
 
-  try {
+try {
 
-    let {
-      email,
-      password,
-    } = req.body;
+```
+let {
+  email,
+  password,
+} = req.body;
 
-    // CLEAN INPUTS
-    email = email
-      ?.trim()
-      .toLowerCase();
+// CLEAN INPUTS
+email =
+  email
+    ?.trim()
+    .toLowerCase();
 
-    password = password?.trim();
+password =
+  password?.trim();
 
-    // VALIDATION
-    if (
-      !email ||
-      !password
-    ) {
+// VALIDATION
+if (
+  !email ||
+  !password
+) {
 
-      return res.status(400).json({
+  return res.status(400).json({
 
-        success: false,
+    success: false,
 
-        message:
-          "Email and password are required",
+    message:
+      "Email and password are required",
 
-      });
+  });
 
-    }
+}
 
-    // FIND USER
-    const user =
-      await User.findOne({
-        email,
-      });
+// FIND USER
+const user =
+  await User.findOne({
+    email,
+  });
 
-    if (!user) {
+if (!user) {
 
-      return res.status(400).json({
+  return res.status(400).json({
 
-        success: false,
+    success: false,
 
-        message:
-          "Invalid credentials",
+    message:
+      "Invalid credentials",
 
-      });
+  });
 
-    }
+}
 
-    // CHECK PASSWORD
-    const isMatch =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
+// CHECK PASSWORD
+const isMatch =
+  await bcrypt.compare(
+    password,
+    user.password
+  );
 
-    console.log(
-      "PASSWORD MATCH:",
-      isMatch
-    );
+if (!isMatch) {
 
-    if (!isMatch) {
+  return res.status(400).json({
 
-      return res.status(400).json({
+    success: false,
 
-        success: false,
+    message:
+      "Invalid credentials",
 
-        message:
-          "Invalid credentials",
+  });
 
-      });
+}
 
-    }
+// CREATE NOTIFICATION
+await Notification.create({
 
-    // CREATE NOTIFICATION
-    await Notification.create({
+  user:
+    user._id,
 
-      user:
+  title:
+    "Login Successful",
+
+  message:
+    "You logged into your account.",
+
+  type:
+    "login",
+
+});
+
+// GENERATE TOKEN
+const token =
+  jwt.sign(
+
+    {
+      id:
         user._id,
+    },
 
-      title:
-        "Login Successful",
+    process.env.JWT_SECRET,
 
-      message:
-        "You logged into your account.",
+    {
+      expiresIn:
+        "7d",
+    }
 
-      type:
-        "login",
+  );
 
-    });
+// RESPONSE
+return res.status(200).json({
 
-    // GENERATE TOKEN
-    const token = jwt.sign(
+  success: true,
 
-      {
-        id:
-          user._id,
-      },
+  message:
+    "Login successful",
 
-      process.env.JWT_SECRET,
+  token,
 
-      {
-        expiresIn:
-          "7d",
-      }
+  user: {
 
-    );
+    id:
+      user._id,
 
-    // RESPONSE
-    return res.status(200).json({
+    full_name:
+      user.full_name,
 
-      success: true,
+    email:
+      user.email,
 
-      message:
-        "Login successful",
+    role:
+      user.role,
 
-      token,
+  },
 
-      user: {
+});
+```
 
-        id:
-          user._id,
+} catch (error) {
 
-        full_name:
-          user.full_name,
+```
+console.log(
+  "LOGIN ERROR:",
+  error
+);
 
-        email:
-          user.email,
+return res.status(500).json({
 
-        role:
-          user.role,
+  success: false,
 
-      },
+  message:
+    "Login failed",
 
-    });
+});
+```
 
-  } catch (error) {
-
-    console.log(
-      "LOGIN ERROR:",
-      error
-    );
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
-        "Login failed",
-
-    });
-
-  }
+}
 
 };
