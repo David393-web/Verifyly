@@ -34,6 +34,8 @@ const notificationSchema =
           "account",
           "report",
           "security",
+          "login",
+          "status",
         ],
 
         default: "report",
