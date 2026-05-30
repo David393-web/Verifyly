@@ -9,6 +9,7 @@ import {
 import { useEffect, useState, useCallback } from "react";
 
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 
 import { getAllReports, updateReportStatus } from "../services/adminService";
 
@@ -88,6 +89,7 @@ export default function AdminDashboard() {
   return (
     <>
       <Header />
+      <BackButton />
 
       <div
         className="

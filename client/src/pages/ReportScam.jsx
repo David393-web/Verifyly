@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 import { createReport } from "../services/reportService.js";
 
 export default function ReportScam() {
@@ -73,6 +74,8 @@ export default function ReportScam() {
   return (
     <>
       <Header />
+
+      <BackButton />
 
       <div className="min-h-screen bg-[#dfe9ff] py-10 px-4 md:px-8">
         <div className="max-w-5xl mx-auto bg-white rounded-[35px] shadow-2xl p-6 md:p-10">

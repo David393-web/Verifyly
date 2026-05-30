@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import Header from "../components/Header";
 import Loader from "../components/Loader";
+import BackButton from "../components/BackButton";
 
 import { getReports } from "../services/reportService";
 
@@ -29,6 +30,8 @@ function SubmittedCases() {
   return (
     <div className="min-h-screen bg-[#dfe9ff]">
       <Header />
+
+      <BackButton />
 
       <div className="max-w-5xl px-6 py-10 mx-auto">
         <h1 className="mb-8 text-5xl font-bold text-gray-900">

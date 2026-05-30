@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 
 const savedUser =
   JSON.parse(localStorage.getItem("user")) || {};
@@ -43,24 +44,26 @@ export default function Settings() {
     <>
       <Header />
 
+      <BackButton />
+
       <div className="min-h-screen bg-[#eef2ff] py-10 px-4 md:px-8">
         
         <div className="bg-white max-w-3xl mx-auto rounded-[35px] shadow-2xl p-6 md:p-10">
           
           {/* TITLE */}
           <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-black text-gray-900">
+            <h1 className="text-4xl font-black text-gray-900 md:text-5xl">
               Settings
             </h1>
 
-            <p className="text-gray-500 mt-3 text-lg">
+            <p className="mt-3 text-lg text-gray-500">
               Manage your account preferences.
             </p>
           </div>
 
           {/* SUCCESS MESSAGE */}
           {successMessage && (
-            <div className="bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-2xl mb-6">
+            <div className="px-5 py-4 mb-6 text-green-700 bg-green-100 border border-green-300 rounded-2xl">
               {successMessage}
             </div>
           )}
@@ -70,7 +73,7 @@ export default function Settings() {
             
             {/* FULL NAME */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block mb-2 font-semibold text-gray-700">
                 Full Name
               </label>
 
@@ -81,22 +84,13 @@ export default function Settings() {
                 onChange={(e) =>
                   setName(e.target.value)
                 }
-                className="
-                  w-full
-                  p-4
-                  rounded-2xl
-                  border
-                  border-gray-300
-                  outline-none
-                  focus:ring-2
-                  focus:ring-indigo-400
-                "
+                className="w-full p-4 border border-gray-300 outline-none  rounded-2xl focus:ring-2 focus:ring-indigo-400"
               />
             </div>
 
             {/* EMAIL */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block mb-2 font-semibold text-gray-700">
                 Email Address
               </label>
 
@@ -107,22 +101,13 @@ export default function Settings() {
                 onChange={(e) =>
                   setEmail(e.target.value)
                 }
-                className="
-                  w-full
-                  p-4
-                  rounded-2xl
-                  border
-                  border-gray-300
-                  outline-none
-                  focus:ring-2
-                  focus:ring-indigo-400
-                "
+                className="w-full p-4 border border-gray-300 outline-none  rounded-2xl focus:ring-2 focus:ring-indigo-400"
               />
             </div>
 
             {/* PASSWORD */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block mb-2 font-semibold text-gray-700">
                 New Password
               </label>
 
@@ -133,35 +118,14 @@ export default function Settings() {
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
-                className="
-                  w-full
-                  p-4
-                  rounded-2xl
-                  border
-                  border-gray-300
-                  outline-none
-                  focus:ring-2
-                  focus:ring-indigo-400
-                "
+                className="w-full p-4 border border-gray-300 outline-none  rounded-2xl focus:ring-2 focus:ring-indigo-400"
               />
             </div>
 
             {/* BUTTON */}
             <button
               onClick={handleSave}
-              className="
-                w-full
-                bg-indigo-600
-                hover:bg-indigo-700
-                text-white
-                px-8
-                py-4
-                rounded-2xl
-                font-semibold
-                text-lg
-                transition-all
-                duration-300
-              "
+              className="w-full px-8 py-4 text-lg font-semibold text-white transition-all duration-300 bg-indigo-600  hover:bg-indigo-700 rounded-2xl"
             >
               Save Changes
             </button>
