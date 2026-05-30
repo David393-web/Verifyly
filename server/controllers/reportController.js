@@ -6,89 +6,65 @@ import Notification from "../models/Notification.js";
 // =====================================
 export const createReport = async (req, res) => {
   try {
-
-    const {
-      scam_type,
-      amount_lost,
-      description,
-      contact_email,
-    } = req.body;
+    const { scam_type, amount_lost, description, contact_email } = req.body;
 
     // FILES
-    const screenshots =
-      req.files?.screenshots?.map(
-        (file) => file.path
-      ) || [];
+    const screenshots = req.files?.screenshots?.map((file) => file.path) || [];
 
-    const receipt =
-      req.files?.receipt?.[0]?.path || "";
+    const receipt = req.files?.receipt?.[0]?.path || "";
 
     // CREATE REPORT
-    const report =
-      await Report.create({
+    const report = await Report.create({
+      user: req.user.id,
 
-        user: req.user.id,
+      scam_type,
 
-        scam_type,
+      amount_lost,
 
-        amount_lost,
+      description,
 
-        description,
+      contact_email,
 
-        contact_email,
+      screenshots,
 
-        screenshots,
-
-        receipt,
-
-      });
+      receipt,
+    });
 
     // CREATE NOTIFICATION
     await Notification.create({
-
       user: req.user.id,
 
-      title:
-        "Scam Report Submitted",
+      title: "Scam Report Submitted",
 
-      message:
-        `${scam_type} report submitted successfully.`,
+      message: `${scam_type} report submitted successfully.`,
 
-      type:
-        "report",
+      type: "report",
 
       read: false,
-
     });
 
     // RESPONSE
     return res.status(201).json({
-
       success: true,
 
-      message:
-        "Report submitted successfully",
+      message: "Report submitted successfully",
 
       report,
-
     });
-
   } catch (error) {
+    console.error("CREATE REPORT ERROR:");
 
-    console.log(
-      "CREATE REPORT ERROR:",
-      error
-    );
+    console.error(error);
+
+    console.error(error?.message);
+
+    console.error(error?.stack);
 
     return res.status(500).json({
-
       success: false,
 
-      message:
-        "Submission failed",
-
+      message: error?.message || "Submission failed",
     });
-
   }
 };
 
@@ -97,25 +73,16 @@ export const createReport = async (req, res) => {
 // =====================================
 export const updateReportStatus = async (req, res) => {
   try {
-
     const { status } = req.body;
 
-    const report =
-      await Report.findById(
-        req.params.id
-      );
+    const report = await Report.findById(req.params.id);
 
     if (!report) {
-
       return res.status(404).json({
-
         success: false,
 
-        message:
-          "Report not found",
-
+        message: "Report not found",
       });
-
     }
 
     // UPDATE STATUS
@@ -125,50 +92,38 @@ export const updateReportStatus = async (req, res) => {
 
     // CREATE NOTIFICATION
     await Notification.create({
+      user: report.user,
 
-      user:
-        report.user,
+      title: "Report Status Updated",
 
-      title:
-        "Report Status Updated",
+      message: `Your report status changed to ${status}.`,
 
-      message:
-        `Your report status changed to ${status}.`,
-
-      type:
-        "status",
+      type: "status",
 
       read: false,
-
     });
 
     return res.status(200).json({
-
       success: true,
 
-      message:
-        "Report status updated successfully",
+      message: "Report status updated successfully",
 
       report,
-
     });
-
   } catch (error) {
+    console.error("UPDATE STATUS ERROR:");
 
-    console.log(
-      "UPDATE STATUS ERROR:",
-      error
-    );
+    console.error(error);
+
+    console.error(error?.message);
+
+    console.error(error?.stack);
 
     return res.status(500).json({
-
       success: false,
 
-      message:
-        "Failed to update report",
-
+      message: error?.message || "Failed to update report",
     });
-
   }
 };
 
@@ -177,39 +132,21 @@ export const updateReportStatus = async (req, res) => {
 // =====================================
 export const getReports = async (req, res) => {
   try {
-
-    const reports =
-      await Report.find({
-
-        user:
-          req.user.id,
-
-      }).sort({
-
-        createdAt: -1,
-
-      });
-
-    return res.status(200).json(
-      reports
-    );
-
-  } catch (error) {
-
-    console.log(
-      "GET REPORTS ERROR:",
-      error
-    );
-
-    return res.status(500).json({
-
-      success: false,
-
-      message:
-        "Failed to fetch reports",
-
+    const reports = await Report.find({
+      user: req.user.id,
+    }).sort({
+      createdAt: -1,
     });
 
+    return res.status(200).json(reports);
+  } catch (error) {
+    console.log("GET REPORTS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+
+      message: "Failed to fetch reports",
+    });
   }
 };
 
@@ -218,62 +155,35 @@ export const getReports = async (req, res) => {
 // =====================================
 export const getReportStats = async (req, res) => {
   try {
+    const totalReports = await Report.countDocuments({
+      user: req.user.id,
+    });
 
-    const totalReports =
-      await Report.countDocuments({
+    const pendingReports = await Report.countDocuments({
+      user: req.user.id,
 
-        user:
-          req.user.id,
+      status: "Pending",
+    });
 
-      });
+    const investigatingReports = await Report.countDocuments({
+      user: req.user.id,
 
-    const pendingReports =
-      await Report.countDocuments({
+      status: "Investigating",
+    });
 
-        user:
-          req.user.id,
+    const resolvedReports = await Report.countDocuments({
+      user: req.user.id,
 
-        status:
-          "Pending",
+      status: "Resolved",
+    });
 
-      });
-
-    const investigatingReports =
-      await Report.countDocuments({
-
-        user:
-          req.user.id,
-
-        status:
-          "Investigating",
-
-      });
-
-    const resolvedReports =
-      await Report.countDocuments({
-
-        user:
-          req.user.id,
-
-        status:
-          "Resolved",
-
-      });
-
-    const latestReport =
-      await Report.findOne({
-
-        user:
-          req.user.id,
-
-      }).sort({
-
-        createdAt: -1,
-
-      });
+    const latestReport = await Report.findOne({
+      user: req.user.id,
+    }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
-
       totalReports,
 
       pendingReports,
@@ -283,24 +193,14 @@ export const getReportStats = async (req, res) => {
       resolvedReports,
 
       latestReport,
-
     });
-
   } catch (error) {
-
-    console.log(
-      "REPORT STATS ERROR:",
-      error
-    );
+    console.log("REPORT STATS ERROR:", error);
 
     return res.status(500).json({
-
       success: false,
 
-      message:
-        "Failed to fetch stats",
-
+      message: "Failed to fetch stats",
     });
-
   }
 };
