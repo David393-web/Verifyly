@@ -9,7 +9,6 @@ import Loader from "../components/Loader";
 import {
   ShieldAlert,
   FileSearch,
-  History,
   Settings,
   Activity,
   Clock3,
@@ -331,38 +330,6 @@ export default function Dashboard() {
               <p className="leading-relaxed text-gray-500">
                 Track all submitted
                 scam reports.
-              </p>
-
-            </button>
-
-
-            {/* HISTORY */}
-            <button
-              onClick={() =>
-                navigate("/history")
-              }
-              className="
-                bg-white
-                p-8
-                rounded-[30px]
-                shadow-lg
-                hover:shadow-2xl
-                transition-all
-                duration-300
-                text-left
-                hover:-translate-y-1
-              "
-            >
-
-              <History className="mb-5 text-green-500 w-14 h-14" />
-
-              <h2 className="mb-3 text-2xl font-bold text-gray-900">
-                Report History
-              </h2>
-
-              <p className="leading-relaxed text-gray-500">
-                Access previous
-                activities and reports.
               </p>
 
             </button>
