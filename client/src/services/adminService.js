@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API =
-  "http://localhost:5000/api/admin";
+   "https://verifly-server.onrender.com/api/admin";
 
 
 // GET REPORTS
