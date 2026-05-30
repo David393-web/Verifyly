@@ -7,7 +7,6 @@ import Dashboard from "./pages/Dashboard";
 import ReportScam from "./pages/ReportScam";
 import Settings from "./pages/Settings";
 import SubmittedCases from "./pages/SubmittedCases";
-import History from "./pages/History";
 import AdminDashboard from "./pages/AdminDashboard";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -60,14 +59,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <History />
-            </ProtectedRoute>
-          }
-        />
+        
       </Routes>
     </div>
   );

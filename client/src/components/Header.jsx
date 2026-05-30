@@ -11,6 +11,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 
 import {
@@ -33,6 +34,8 @@ export default function Header() {
     showNotifications,
     setShowNotifications,
   ] = useState(false);
+  const notificationRef =
+  useRef(null);
 
 
   // FETCH NOTIFICATIONS
@@ -67,7 +70,42 @@ export default function Header() {
     loadData();
 
   }, [fetchNotifications]);
+  
+  useEffect(() => {
 
+  const handleClickOutside =
+    (event) => {
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(
+          event.target
+        )
+      ) {
+
+        setShowNotifications(
+          false
+        );
+
+      }
+
+    };
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+  };
+
+}, []);
 
   // MARK AS READ
   const handleRead =
@@ -136,8 +174,10 @@ export default function Header() {
       <div className="flex items-center gap-5">
 
         {/* NOTIFICATIONS */}
-        <div className="relative">
-
+        <div
+  className="relative"
+  ref={notificationRef}
+>
           <button
 
             onClick={() =>
@@ -261,7 +301,7 @@ export default function Header() {
 
           onClick={handleLogout}
 
-          className="flex items-center gap-2 px-5 py-3 font-semibold text-white transition bg-red-500  rounded-2xl hover:bg-red-600"
+          className="flex items-center gap-2 px-5 py-3 font-semibold text-white transition bg-red-500 rounded-2xl hover:bg-red-600"
         >
 
           <LogOut size={20} />
