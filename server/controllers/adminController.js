@@ -84,7 +84,7 @@ export const updateReportStatus =
           `Your ${report.scam_type} case is now ${status}.`,
 
         type:
-          "status_update",
+          "status",
 
       });
 
