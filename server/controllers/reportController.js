@@ -52,13 +52,19 @@ export const createReport = async (req, res) => {
       report,
     });
   } catch (error) {
-    console.error("CREATE REPORT ERROR:");
+    console.error("=================================");
+    console.error("CREATE REPORT ERROR");
+    console.error("=================================");
 
-    console.error(error);
+    console.error("MESSAGE:", error?.message);
 
-    console.error(error?.message);
+    console.error("STACK:", error?.stack);
 
-    console.error(error?.stack);
+    console.error("BODY:", JSON.stringify(req.body, null, 2));
+
+    console.error("FILES:", JSON.stringify(req.files, null, 2));
+
+    console.error("FULL ERROR:", JSON.stringify(error, null, 2));
 
     return res.status(500).json({
       success: false,
