@@ -17,16 +17,29 @@ router.post(
   "/",
   authMiddleware,
 
-  upload.fields([
-    {
-      name: "screenshots",
-      maxCount: 10,
-    },
-    {
-      name: "receipt",
-      maxCount: 1,
-    },
-  ]),
+  (req, res, next) => {
+    upload.fields([
+      {
+        name: "screenshots",
+        maxCount: 10,
+      },
+      {
+        name: "receipt",
+        maxCount: 10,
+      },
+    ])(req, res, (err) => {
+      if (err) {
+        console.error("UPLOAD ERROR:");
+        console.error(err);
+        return res.status(500).json({
+          success: false,
+          message: err.message,
+        });
+      }
+
+      next();
+    });
+  },
 
   createReport,
 );

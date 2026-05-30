@@ -4,48 +4,29 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 import { v2 as cloudinary } from "cloudinary";
 
-
 // CLOUDINARY CONFIG
 cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 
-  cloud_name:
-    process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
 
-  api_key:
-    process.env.CLOUDINARY_API_KEY,
-
-  api_secret:
-    process.env.CLOUDINARY_API_SECRET,
-
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-
 // STORAGE
-const storage =
-  new CloudinaryStorage({
+const storage = new CloudinaryStorage({
+  cloudinary,
 
-    cloudinary,
+  params: {
+    folder: "verilyfy",
 
-    params: async (
-      req,
-      file
-    ) => ({
-
-      folder:
-        "verilyfy",
-
-      resource_type:
-        "auto",
-
-    }),
-
-  });
-
+    resource_type: "auto",
+  },
+});
 
 // MULTER UPLOAD
-const upload =
-  multer({
-    storage,
-  });
+const upload = multer({
+  storage,
+});
 
 export default upload;
