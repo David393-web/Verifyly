@@ -62,7 +62,6 @@ export const createReport = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-
       message: error?.message || "Submission failed",
     });
   }
@@ -121,7 +120,6 @@ export const updateReportStatus = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-
       message: error?.message || "Failed to update report",
     });
   }

@@ -12,7 +12,6 @@ import upload from "../config/cloudinary.js";
 
 const router = express.Router();
 
-
 // CREATE REPORT
 router.post(
   "/",
@@ -25,27 +24,17 @@ router.post(
     },
     {
       name: "receipt",
-      maxCount: 10,
+      maxCount: 1,
     },
   ]),
 
-  createReport
+  createReport,
 );
-
 
 // GET USER REPORTS
-router.get(
-  "/",
-  authMiddleware,
-  getReports
-);
-
+router.get("/", authMiddleware, getReports);
 
 // GET REPORT STATS
-router.get(
-  "/stats",
-  authMiddleware,
-  getReportStats
-);
+router.get("/stats", authMiddleware, getReportStats);
 
 export default router;
